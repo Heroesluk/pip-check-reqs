@@ -26,6 +26,7 @@ def test_find_missing_reqs(tmp_path: Path) -> None:
         ),
     )
 
+
     source_dir = tmp_path / "source"
     source_dir.mkdir()
 
