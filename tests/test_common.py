@@ -370,7 +370,7 @@ def test_version_info_shows_version_number() -> None:
     assert __version__ in common.version_info()
 
 
-def test_is_pkgutil_namespace(tmp_path: Path) -> None:
+def test_is_pkgutil_namespace_true(tmp_path: Path) -> None:
     fake_requirements_file = tmp_path / "__init__.py"
     fake_requirements_file.write_text("__import__(\'pkgutil\').extend_path")
 
@@ -378,7 +378,7 @@ def test_is_pkgutil_namespace(tmp_path: Path) -> None:
     assert test is True
 
 
-def test_is_pkgutil_namespace(tmp_path: Path) -> None:
+def test_is_pkgutil_namespace_false(tmp_path: Path) -> None:
     fake_requirements_file = tmp_path / "__init__.py"
     fake_requirements_file.write_text("some init file")
 
