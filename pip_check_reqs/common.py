@@ -79,16 +79,16 @@ class _ImportVisitor(ast.NodeVisitor):
 
     # Ignore the name error as we are overriding the method.
     def visit_Import(  # noqa: N802, pylint: disable=invalid-name
-        self,
-        node: ast.Import,
+            self,
+            node: ast.Import,
     ) -> None:
         for alias in node.names:
             self._add_module(alias.name, node.lineno)
 
     # Ignore the name error as we are overriding the method.
     def visit_ImportFrom(  # noqa: N802, pylint: disable=invalid-name
-        self,
-        node: ast.ImportFrom,
+            self,
+            node: ast.ImportFrom,
     ) -> None:
         if node.module == "__future__":
             # not an actual module
@@ -104,11 +104,13 @@ class _ImportVisitor(ast.NodeVisitor):
             return
 
         modname_parts_progress: list[str] = []
-        for modname_part in modname.split("."):
-            name = ".".join([*modname_parts_progress, modname_part])
+        modnames = get_sequential_combinations(modname)
+
+        pkgutil_type = False
+        for modname_part in modnames:
             try:
-                module_spec = find_spec(name=name)
-            except ValueError:
+                module_spec = find_spec(name=modname_part)
+            except (ValueError, ModuleNotFoundError) as e:
                 # The module has no __spec__ attribute.
                 # For example, if importing __main__.
                 return
@@ -120,6 +122,13 @@ class _ImportVisitor(ast.NodeVisitor):
             if module_spec.origin is None:
                 modname_parts_progress.append(modname_part)
                 continue
+
+            if "." not in modname_part:
+                pkgutil_type = is_pkgutil_namespace(module_spec.origin)
+
+            if pkgutil_type:
+                if (is_pkgutil_namespace(module_spec.origin)):
+                    continue
 
             modpath = module_spec.origin
 
@@ -167,10 +176,10 @@ def pyfiles(root: Path) -> Generator[Path, None, None]:
 
 
 def find_imported_modules(
-    *,
-    paths: Iterable[Path],
-    ignore_files_function: Callable[[str], bool],
-    ignore_modules_function: Callable[[str], bool],
+        *,
+        paths: Iterable[Path],
+        ignore_files_function: Callable[[str], bool],
+        ignore_modules_function: Callable[[str], bool],
 ) -> dict[str, FoundModule]:
     vis = _ImportVisitor(ignore_modules_function=ignore_modules_function)
     for path in paths:
@@ -186,18 +195,18 @@ def find_imported_modules(
 
 
 def find_required_modules(
-    *,
-    ignore_requirements_function: Callable[
-        [str | ParsedRequirement],
-        bool,
-    ],
-    skip_incompatible: bool,
-    requirements_filename: Path,
+        *,
+        ignore_requirements_function: Callable[
+            [str | ParsedRequirement],
+            bool,
+        ],
+        skip_incompatible: bool,
+        requirements_filename: Path,
 ) -> set[NormalizedName]:
     explicit: set[NormalizedName] = set()
     for requirement in parse_requirements(
-        str(requirements_filename),
-        session=PipSession(),
+            str(requirements_filename),
+            session=PipSession(),
     ):
         requirement_name = install_req_from_line(
             requirement.requirement,
@@ -260,8 +269,8 @@ def ignorer(*, ignore_cfg: list[str]) -> Callable[..., bool]:
         return _null_ignorer
 
     def ignorer_function(
-        candidate: str | ParsedRequirement,
-        ignore_cfg: list[str] = ignore_cfg,
+            candidate: str | ParsedRequirement,
+            ignore_cfg: list[str] = ignore_cfg,
     ) -> bool:
         for ignore in ignore_cfg:
             if isinstance(candidate, str):
@@ -291,3 +300,20 @@ def version_info() -> str:
         f"from {parent_directory} "
         f"(python {python_version})"
     )
+
+
+def is_pkgutil_namespace(init_path):
+    if os.path.exists(init_path):
+        with open(init_path, 'r') as file:
+            content = file.read()
+            if '__import__(\'pkgutil\').extend_path' in content:
+                return True
+    return False
+
+
+def get_sequential_combinations(module_name: str) -> list[str]:
+    parts = module_name.split('.')
+    combinations = []
+    for i in range(1, len(parts) + 1):
+        combinations.append('.'.join(parts[:i]))
+    return combinations
