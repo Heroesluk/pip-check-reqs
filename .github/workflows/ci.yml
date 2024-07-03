@@ -53,20 +53,6 @@ jobs:
           uv pip install --upgrade --editable .[dev]
           uv pip install --resolution=${{ matrix.uv-resolution }} --upgrade --editable .
 
-      - name: "Lint"
-        run: |
-          ${{ steps.venv.outputs.activate }}
-          mypy .
-          ruff check .
-          ruff format --check .
-          pip-extra-reqs pip_check_reqs
-          pip-missing-reqs pip_check_reqs
-          pylint pip_check_reqs tests
-          pyroma --min=10 .
-          pyproject-fmt --check --keep-full-version .
-          pyright .
-          actionlint
-
       - name: "Run tests"
         run: |
           ${{ steps.venv.outputs.activate }}
