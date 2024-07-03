@@ -15,6 +15,7 @@ import pytest
 
 import __main__
 from pip_check_reqs import __version__, common
+from pip_check_reqs.common import is_pkgutil_namespace, get_sequential_combinations
 
 
 @pytest.mark.parametrize(
@@ -55,10 +56,10 @@ def test_pyfiles_file_no_dice(tmp_path: Path) -> None:
     not_python_file.touch()
 
     with pytest.raises(
-        expected_exception=ValueError,
-        match=re.escape(
-            f"{not_python_file} is not a python file or directory",
-        ),
+            expected_exception=ValueError,
+            match=re.escape(
+                f"{not_python_file} is not a python file or directory",
+            ),
     ):
         list(common.pyfiles(root=not_python_file))
 
@@ -104,9 +105,9 @@ def test_pyfiles_package(tmp_path: Path) -> None:
     ],
 )
 def test_find_imported_modules_simple(
-    statement: str,
-    expected_module_names: set[str],
-    tmp_path: Path,
+        statement: str,
+        expected_module_names: set[str],
+        tmp_path: Path,
 ) -> None:
     """Test for the basic ability to find imported modules."""
     spam = tmp_path / "spam.py"
@@ -127,7 +128,7 @@ def test_find_imported_modules_simple(
 
 
 def test_find_imported_modules_frozen(
-    tmp_path: Path,
+        tmp_path: Path,
 ) -> None:
     """Frozen modules are not included in the result."""
     frozen_item_names: list[str] = []
@@ -161,11 +162,11 @@ def test_find_imported_modules_frozen(
 @pytest.mark.skipif(
     condition=platform.system() == "Windows",
     reason=(
-        "Test not supported on Windows, where __main__.__spec__ is not None"
+            "Test not supported on Windows, where __main__.__spec__ is not None"
     ),
 )
 def test_find_imported_modules_main(
-    tmp_path: Path,
+        tmp_path: Path,
 ) -> None:  # pragma: no cover
     spam = tmp_path / "spam.py"
     statement = "import __main__"
@@ -242,32 +243,32 @@ def test_find_imported_modules_period(tmp_path: Path) -> None:
     ("ignore_ham", "ignore_hashlib", "expect", "locs"),
     [
         (
-            False,
-            False,
-            ["ast", "pathlib", "hashlib", "sys"],
-            [
-                ("spam.py", 2),
-                ("ham.py", 2),
-            ],
+                False,
+                False,
+                ["ast", "pathlib", "hashlib", "sys"],
+                [
+                    ("spam.py", 2),
+                    ("ham.py", 2),
+                ],
         ),
         (
-            False,
-            True,
-            ["ast", "pathlib", "sys"],
-            [("spam.py", 2), ("ham.py", 2)],
+                False,
+                True,
+                ["ast", "pathlib", "sys"],
+                [("spam.py", 2), ("ham.py", 2)],
         ),
         (True, False, ["ast", "sys"], [("spam.py", 2)]),
         (True, True, ["ast", "sys"], [("spam.py", 2)]),
     ],
 )
 def test_find_imported_modules_advanced(
-    *,
-    caplog: pytest.LogCaptureFixture,
-    ignore_ham: bool,
-    ignore_hashlib: bool,
-    expect: list[str],
-    locs: list[tuple[str, int]],
-    tmp_path: Path,
+        *,
+        caplog: pytest.LogCaptureFixture,
+        ignore_ham: bool,
+        ignore_hashlib: bool,
+        expect: list[str],
+        locs: list[tuple[str, int]],
+        tmp_path: Path,
 ) -> None:
     root = tmp_path
     spam = root / "spam.py"
@@ -330,10 +331,10 @@ def test_find_imported_modules_advanced(
     ],
 )
 def test_ignorer(
-    *,
-    ignore_cfg: list[str],
-    candidate: str,
-    result: bool,
+        *,
+        ignore_cfg: list[str],
+        candidate: str,
+        result: bool,
 ) -> None:
     ignorer = common.ignorer(ignore_cfg=ignore_cfg)
     assert ignorer(candidate) == result
@@ -367,3 +368,27 @@ def test_find_required_modules_env_markers(tmp_path: Path) -> None:
 
 def test_version_info_shows_version_number() -> None:
     assert __version__ in common.version_info()
+
+
+def test_is_pkgutil_namespace(tmp_path: Path) -> None:
+    fake_requirements_file = tmp_path / "__init__.py"
+    fake_requirements_file.write_text("__import__(\'pkgutil\').extend_path")
+
+    test = is_pkgutil_namespace(fake_requirements_file)
+    assert test is True
+
+
+def test_is_pkgutil_namespace(tmp_path: Path) -> None:
+    fake_requirements_file = tmp_path / "__init__.py"
+    fake_requirements_file.write_text("some init file")
+
+    test = is_pkgutil_namespace(fake_requirements_file)
+    assert test is False
+
+
+def test_get_sequential_combinations() -> None:
+    import_to_divide = 'sys.somefunc.exec'
+
+    divided = get_sequential_combinations(import_to_divide)
+    assert len(divided) == 3
+    assert divided == ['sys', 'sys.somefunc', 'sys.somefunc.exec']
