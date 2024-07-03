@@ -79,16 +79,16 @@ class _ImportVisitor(ast.NodeVisitor):
 
     # Ignore the name error as we are overriding the method.
     def visit_Import(  # noqa: N802, pylint: disable=invalid-name
-            self,
-            node: ast.Import,
+        self,
+        node: ast.Import,
     ) -> None:
         for alias in node.names:
             self._add_module(alias.name, node.lineno)
 
     # Ignore the name error as we are overriding the method.
     def visit_ImportFrom(  # noqa: N802, pylint: disable=invalid-name
-            self,
-            node: ast.ImportFrom,
+        self,
+        node: ast.ImportFrom,
     ) -> None:
         if node.module == "__future__":
             # not an actual module
@@ -176,10 +176,10 @@ def pyfiles(root: Path) -> Generator[Path, None, None]:
 
 
 def find_imported_modules(
-        *,
-        paths: Iterable[Path],
-        ignore_files_function: Callable[[str], bool],
-        ignore_modules_function: Callable[[str], bool],
+    *,
+    paths: Iterable[Path],
+    ignore_files_function: Callable[[str], bool],
+    ignore_modules_function: Callable[[str], bool],
 ) -> dict[str, FoundModule]:
     vis = _ImportVisitor(ignore_modules_function=ignore_modules_function)
     for path in paths:
@@ -195,18 +195,18 @@ def find_imported_modules(
 
 
 def find_required_modules(
-        *,
-        ignore_requirements_function: Callable[
-            [str | ParsedRequirement],
-            bool,
-        ],
-        skip_incompatible: bool,
-        requirements_filename: Path,
+    *,
+    ignore_requirements_function: Callable[
+        [str | ParsedRequirement],
+        bool,
+    ],
+    skip_incompatible: bool,
+    requirements_filename: Path,
 ) -> set[NormalizedName]:
     explicit: set[NormalizedName] = set()
     for requirement in parse_requirements(
-            str(requirements_filename),
-            session=PipSession(),
+        str(requirements_filename),
+        session=PipSession(),
     ):
         requirement_name = install_req_from_line(
             requirement.requirement,
