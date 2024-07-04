@@ -49,11 +49,7 @@ jobs:
             touch /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/utility/__init__.py
             echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/__init__.py
             echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/__init__.py
-            cat <<EOF > 
-          class Foo:
-          def __init__(self):
-              pass 
-          EOF >> /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/utility__init__.py
+            echo "class Foo: def __init__(self): pass" > /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/utility__init__.py
           fi
         shell: bash
 
