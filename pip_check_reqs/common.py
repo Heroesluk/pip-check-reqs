@@ -269,8 +269,8 @@ def ignorer(*, ignore_cfg: list[str]) -> Callable[..., bool]:
         return _null_ignorer
 
     def ignorer_function(
-            candidate: str | ParsedRequirement,
-            ignore_cfg: list[str] = ignore_cfg,
+        candidate: str | ParsedRequirement,
+        ignore_cfg: list[str] = ignore_cfg,
     ) -> bool:
         for ignore in ignore_cfg:
             if isinstance(candidate, str):
