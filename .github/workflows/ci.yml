@@ -4,23 +4,23 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
   schedule:
     # * is a special character in YAML so you have to quote this string
     # Run at 1:00 every day
-    - cron:  '0 1 * * *'
+    - cron: '0 1 * * *'
 
 jobs:
   build:
 
     strategy:
       matrix:
-        uv-resolution: ['highest', 'lowest']
+        uv-resolution: [ 'highest', 'lowest' ]
         # The minimum version should be represented in setup.py.
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
-        os: [ubuntu-latest, windows-latest]
+        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
+        os: [ ubuntu-latest, windows-latest ]
 
     runs-on: ${{ matrix.os }}
 
@@ -43,6 +43,17 @@ jobs:
           else
             uv venv /home/runner/.venv
             echo "activate=source /home/runner/.venv/bin/activate" >> "$GITHUB_OUTPUT"
+            mkdir /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/utility
+            touch /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/__init__.py
+            touch /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/__init__.py
+            touch /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/utility/__init__.py
+            echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/__init__.py
+            echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/__init__.py
+            cat <<EOF > 
+          class Foo:
+          def __init__(self):
+              pass 
+          EOF >> /home/runner/.venv/lib/${{ matrix.python-version }}/site-packages/temp/internal/utility__init__.py
           fi
         shell: bash
 
