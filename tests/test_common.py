@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import platform
 import re
 import sys
@@ -10,6 +11,7 @@ import textwrap
 import types
 import uuid
 from pathlib import Path
+import xml
 
 import pytest
 
@@ -92,6 +94,7 @@ def test_pyfiles_package(tmp_path: Path) -> None:
         pytest.param("import spam", set[str](), id="The file we are in"),
         pytest.param("from .foo import bar", set[str](), id="Relative import"),
         pytest.param("from . import baz", set[str]()),
+        pytest.param("from temp.internal.utility import Foo", {"temp.internal.utility"}),
         pytest.param(
             "import re",
             {"re"},
@@ -109,6 +112,9 @@ def test_find_imported_modules_simple(
         expected_module_names: set[str],
         tmp_path: Path,
 ) -> None:
+    print(statement)
+    print(expected_module_names)
+    print(tmp_path)
     """Test for the basic ability to find imported modules."""
     spam = tmp_path / "spam.py"
     spam.write_text(data=statement)
