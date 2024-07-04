@@ -46,7 +46,7 @@ def find_missing_reqs(
         package_files: list[str] = []
         for item in package.files or []:
             item_location_rel = Path(package_location) / item
-            item_location = common.cached_resolve_path(path=item_location_rel)
+            item_location = common.cached_resolve_path(path=package_location)
             try:
                 relative_item_location = item_location.relative_to(here)
             except ValueError:

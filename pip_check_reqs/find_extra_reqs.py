@@ -53,7 +53,7 @@ def find_extra_reqs(
             item_location_rel = Path(package_location) / item
             item_location = common.cached_resolve_path(path=item_location_rel)
             try:
-                relative_item_location = item_location.relative_to(here)
+                relative_item_location = item_location.relative_to(package_location)
             except ValueError:
                 # Ideally we would use Pathlib.is_relative_to rather than
                 # checking for a ValueError, but that is only available in
