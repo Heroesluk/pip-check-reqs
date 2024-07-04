@@ -40,18 +40,15 @@ jobs:
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             uv venv C:/Users/runner/.venv
             echo "activate=C:/Users/runner/.venv/Scripts/Activate.ps1" >> "$GITHUB_OUTPUT"
-            ls C:/Users/runner/.venv
-            ls C:/Users/runner/.venv/lib
-            ls C:/Users/runner/.venv/lib/python${{ matrix.python-version }}
-            mkdir C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp
-            mkdir C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal
-            mkdir C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/utility
-            touch C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/__init__.py
-            touch C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/__init__.py
-            touch C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/utility/__init__.py
-            echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/__init__.py
-            echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/__init__.py
-            echo "class Foo: def __init__(self): pass" > C:/Users/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/utility__init__.py
+            mkdir C:/Users/runner/.venv/lib/site-packages/temp
+            mkdir C:/Users/runner/.venv/lib/site-packages/temp/internal
+            mkdir C:/Users/runner/.venv/lib/site-packages/temp/internal/utility
+            touch C:/Users/runner/.venv/lib/site-packages/temp/__init__.py
+            touch C:/Users/runner/.venv/lib/site-packages/temp/internal/__init__.py
+            touch C:/Users/runner/.venv/lib/site-packages/temp/internal/utility/__init__.py
+            echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > C:/Users/runner/.venv/lib/site-packages/temp/__init__.py
+            echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > C:/Users/runner/.venv/lib/site-packages/temp/internal/__init__.py
+            echo "class Foo: def __init__(self): pass" > C:/Users/runner/.venv/lib/site-packages/temp/internal/utility__init__.py
           else
             uv venv /home/runner/.venv
             echo "activate=source /home/runner/.venv/bin/activate" >> "$GITHUB_OUTPUT"
