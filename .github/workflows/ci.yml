@@ -47,6 +47,8 @@ jobs:
             mkdir /home/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal
             mkdir /home/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/utility
             touch /home/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/__init__.py
+            ls /home/runner/.venv/lib/
+            echo "${{ matrix.python-version }}"
             touch /home/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/__init__.py
             touch /home/runner/.venv/lib/python${{ matrix.python-version }}/site-packages/temp/internal/utility/__init__.py
             echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > /home/runner/.venv/lib/python$${{ matrix.python-version }}/site-packages/temp/__init__.py
