@@ -127,7 +127,7 @@ class _ImportVisitor(ast.NodeVisitor):
                 pkgutil_type = is_pkgutil_namespace(module_spec.origin)
 
             if pkgutil_type:
-                if (is_pkgutil_namespace(module_spec.origin)):
+                if is_pkgutil_namespace(module_spec.origin):
                     continue
 
             modpath = module_spec.origin
@@ -303,10 +303,10 @@ def version_info() -> str:
 
 
 def is_pkgutil_namespace(init_path: str) -> bool:
-    if os.path.exists(init_path):
-        with open(init_path, 'r') as file:
+    if Path(init_path).exists():
+        with open(init_path) as file:
             content = file.read()
-            if '__import__(\'pkgutil\').extend_path' in content:
+            if "__import__(\'pkgutil\').extend_path" in content:
                 return True
     return False
 
