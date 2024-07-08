@@ -52,14 +52,7 @@ def find_extra_reqs(
         for item in package.files or []:
             item_location_rel = Path(package_location) / item
             item_location = common.cached_resolve_path(path=item_location_rel)
-            try:
-                relative_item_location = item_location.relative_to(here)
-            except ValueError:
-                # Ideally we would use Pathlib.is_relative_to rather than
-                # checking for a ValueError, but that is only available in
-                # Python 3.9+.
-                relative_item_location = item_location
-            package_files.append(str(relative_item_location))
+            package_files.append(str(item_location))
 
         log.debug(
             "installed package: %s (at %s)",

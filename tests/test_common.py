@@ -15,6 +15,8 @@ import pytest
 
 import __main__
 from pip_check_reqs import __version__, common
+from pip_check_reqs.common import (is_pkgutil_namespace,
+                                   get_sequential_combinations)
 
 
 @pytest.mark.parametrize(
@@ -91,6 +93,8 @@ def test_pyfiles_package(tmp_path: Path) -> None:
         pytest.param("import spam", set[str](), id="The file we are in"),
         pytest.param("from .foo import bar", set[str](), id="Relative import"),
         pytest.param("from . import baz", set[str]()),
+        pytest.param("from temp.internal.utility import Foo",
+                     {"temp.internal.utility"}),
         pytest.param(
             "import re",
             {"re"},
@@ -367,3 +371,27 @@ def test_find_required_modules_env_markers(tmp_path: Path) -> None:
 
 def test_version_info_shows_version_number() -> None:
     assert __version__ in common.version_info()
+
+
+def test_is_pkgutil_namespace_true(tmp_path: Path) -> None:
+    fake_requirements_file = tmp_path / "__init__.py"
+    fake_requirements_file.write_text("__import__('pkgutil').extend_path")
+
+    test = is_pkgutil_namespace(str(fake_requirements_file))
+    assert test is True
+
+
+def test_is_pkgutil_namespace_false(tmp_path: Path) -> None:
+    fake_requirements_file = tmp_path / "__init__.py"
+    fake_requirements_file.write_text("some init file")
+
+    test = is_pkgutil_namespace(str(fake_requirements_file))
+    assert test is False
+
+
+def test_get_sequential_combinations() -> None:
+    import_to_divide = "sys.somefunc.exec"
+
+    divided = get_sequential_combinations(import_to_divide)
+    assert len(divided) == 3
+    assert divided == ["sys", "sys.somefunc", "sys.somefunc.exec"]
