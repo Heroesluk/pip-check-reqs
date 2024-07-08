@@ -103,7 +103,6 @@ class _ImportVisitor(ast.NodeVisitor):
         if self._ignore_modules_function(modname):
             return
 
-        modname_parts_progress: list[str] = []
         modnames = get_sequential_combinations(modname)
 
         pkgutil_type = False
@@ -120,7 +119,6 @@ class _ImportVisitor(ast.NodeVisitor):
                 return
 
             if module_spec.origin is None:
-                modname_parts_progress.append(modname_part)
                 continue
 
             if "." not in modname_part:
